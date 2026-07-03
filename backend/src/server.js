@@ -7,6 +7,11 @@ const morgan = require('morgan');
 const authRoutes = require('./routes/authRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const programRoutes = require('./routes/programRoutes');
+const applicationRoutes = require('./routes/applicationRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
+const certificateRoutes = require('./routes/certificateRoutes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -21,6 +26,11 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().t
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/programs', programRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/announcements', announcementRoutes);
+app.use('/api/certificates', certificateRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
