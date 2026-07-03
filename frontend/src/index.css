@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #12181B;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Ruled ledger-line divider — used as a structural device between sections */
+.ledger-rule {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 27px,
+    rgba(237, 230, 214, 0.08) 28px
+  );
+}
+
+/* Rubber-stamp badge: rotated, double-ring, ink-bled edge for attendance status */
+.stamp {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid currentColor;
+  border-radius: 9999px;
+  transform: rotate(-6deg);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.stamp::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid currentColor;
+  border-radius: 9999px;
+  opacity: 0.55;
+}
+
+/* Subtle grain overlay for the parchment surfaces */
+.paper-texture {
+  background-image: radial-gradient(rgba(36, 31, 23, 0.035) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #12181B;
+}
+::-webkit-scrollbar-thumb {
+  background: #2A353B;
+  border-radius: 8px;
+}
