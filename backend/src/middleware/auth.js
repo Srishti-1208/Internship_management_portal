@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/user'); // Import your User model
+const User = require('../models/User'); // Import your User model
 
 async function protect(req, res, next) {
   const header = req.headers.authorization;
@@ -37,4 +37,4 @@ function authorize(...allowedRoles) {
   };
 }
 
-module.exports = { protect, authorize };
+module.exports = { protect, authorize }; 

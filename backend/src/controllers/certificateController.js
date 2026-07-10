@@ -1,9 +1,9 @@
 const crypto = require('crypto');
-const Certificate = require('../models/certificate');
-const User = require('../models/user');
+const Certificate = require('../models/Certificate');
+const User = require('../models/User');
 // Assuming you have models for these summaries:
-const AttendanceSummary = require('../models/analytics'); 
-const ReviewSummary = require('../models/analytics');
+const AttendanceSummary = require('../models/Analytics'); 
+const ReviewSummary = require('../models/Analytics');
 
 const generateCode = () => crypto.randomBytes(9).toString('hex').toUpperCase();
 

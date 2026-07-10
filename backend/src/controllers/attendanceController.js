@@ -1,6 +1,20 @@
 const Attendance = require('../models/Attendance');
 const User = require('../models/User');
 
+function serializeAttendance(att) {
+  return {
+    id: att._id,
+    user_id: att.userId?._id ?? att.userId,
+    intern_name: att.userId?.name ?? null,
+    department: att.userId?.department ?? null,
+    date: att.date,
+    check_in: att.checkIn ?? null,
+    check_out: att.checkOut ?? null,
+    status: att.status,
+    remarks: att.remarks ?? null,
+  };
+}
+
 async function checkIn(req, res, next) {
   try {
     const today = new Date().setHours(0,0,0,0);
@@ -14,7 +28,7 @@ async function checkIn(req, res, next) {
       att.checkIn = new Date();
       await att.save();
     }
-    res.status(201).json({ attendance: att });
+    res.status(201).json({ attendance: serializeAttendance(att) });
   } catch (err) { next(err); }
 }
 // Add this function definition to your attendanceController.js
@@ -22,7 +36,7 @@ async function getMyAttendance(req, res, next) {
   try {
     // You can filter by userId if you have that field in your Attendance model
     const attendance = await Attendance.find({ userId: req.user.id }).sort({ date: -1 });
-    res.json({ attendance });
+    res.json({ attendance: attendance.map(serializeAttendance) });
   } catch (err) {
     next(err);
   }
@@ -37,7 +51,7 @@ async function checkOut(req, res, next) {
 
     att.checkOut = new Date();
     await att.save(); // Model hook handles status update
-    res.json({ attendance: att });
+    res.json({ attendance: serializeAttendance(att) });
   } catch (err) { next(err); }
 }
 
@@ -66,7 +80,7 @@ async function listAttendance(req, res, next) {
       .populate('userId', 'name department mentorId')
       .sort({ date: -1 });
 
-    res.json({ attendance });
+    res.json({ attendance: attendance.map(serializeAttendance) });
   } catch (err) { next(err); }
 }
 // Add this function to your attendanceController.js
@@ -79,10 +93,10 @@ async function updateAttendance(req, res, next) {
       id,
       { status, remarks },
       { new: true }
-    );
+    ).populate('userId', 'name department mentorId');
 
     if (!att) return res.status(404).json({ message: 'Attendance record not found.' });
-    res.json({ attendance: att });
+    res.json({ attendance: serializeAttendance(att) });
   } catch (err) {
     next(err);
   }

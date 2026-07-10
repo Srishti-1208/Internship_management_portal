@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 
 export default function Register() {
-  const { register } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'intern', department: '' });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   function update(field, value) {
@@ -18,13 +18,34 @@ export default function Register() {
     setError('');
     setSubmitting(true);
     try {
-      await register(form);
-      navigate('/attendance');
+      // Just create the account — do NOT store the token or log the user in.
+      await api.post('/auth/register', form);
+      setSuccess(true);
     } catch (err) {
       setError(err.response?.data?.message || 'Could not create account.');
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-ink flex items-center justify-center px-6">
+        <div className="w-full max-w-sm text-center">
+          <div className="stamp w-24 h-24 text-stamp-green text-[10px] font-semibold mx-auto mb-6">Created</div>
+          <h1 className="font-display text-2xl text-parchment mb-2">Account created</h1>
+          <p className="text-parchment/55 text-sm mb-6">
+            Your account was created successfully. Please sign in to continue.
+          </p>
+          <button
+            onClick={() => navigate('/login')}
+            className="bg-parchment text-parchment-text font-semibold rounded-md px-5 py-2.5 text-sm hover:bg-parchment-dim transition"
+          >
+            Go to sign in
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

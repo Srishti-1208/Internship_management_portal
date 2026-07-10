@@ -24,7 +24,18 @@ async function listPrograms(req, res, next) {
       { $addFields: { internCount: { $size: { $ifNull: ["$interns", []] } } } },
       { $sort: { createdAt: -1 } }
     ]);
-    res.json({ programs });
+    res.json({
+      programs: programs.map((p) => ({
+        id: p._id,
+        name: p.name,
+        description: p.description ?? null,
+        department: p.department ?? null,
+        start_date: p.startDate ?? null,
+        end_date: p.endDate ?? null,
+        status: p.status,
+        intern_count: p.internCount,
+      })),
+    });
   } catch (err) { next(err); }
 }
 

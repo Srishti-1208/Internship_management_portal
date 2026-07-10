@@ -59,7 +59,10 @@ async function login(req, res, next) {
     // Find user and include password field explicitly since we hide it by default
     const user = await User.findOne({ email }).select('+password');
 
-    if (!user) {
+    if (!user || !user.password) {
+      // !user.password covers accounts created before password hashing was fixed —
+      // they have no usable credential, so treat them the same as "not found"
+      // rather than crashing bcrypt.compare with an undefined hash.
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
