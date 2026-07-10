@@ -30,13 +30,18 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, []);
 
-  async function login(email, password) {
+  // Example modification for login
+async function login(email, password) {
+  try {
     const res = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', res.data.token);
     localStorage.setItem('user', JSON.stringify(res.data.user));
     setUser(res.data.user);
     return res.data.user;
+  } catch (err) {
+    throw err.response?.data?.message || 'Login failed';
   }
+}
 
   async function register(payload) {
     const res = await api.post('/auth/register', payload);

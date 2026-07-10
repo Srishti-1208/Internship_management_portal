@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/user'); // Import your User model
 
-// Verifies the JWT and attaches the decoded user to req.user
-function protect(req, res, next) {
+async function protect(req, res, next) {
   const header = req.headers.authorization;
 
   if (!header || !header.startsWith('Bearer ')) {
@@ -12,14 +12,22 @@ function protect(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // { id, role, name, email }
+    
+    // Check if user still exists in MongoDB
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ message: 'User no longer exists.' });
+    }
+    
+    // Attach the actual user document to req
+    req.user = user; 
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Not authorized. Invalid or expired token.' });
   }
 }
 
-// Restricts a route to specific roles, e.g. authorize('admin', 'mentor')
+// authorize() stays the same, as it now compares against the fresh req.user
 function authorize(...allowedRoles) {
   return (req, res, next) => {
     if (!req.user || !allowedRoles.includes(req.user.role)) {

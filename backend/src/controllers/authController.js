@@ -1,9 +1,8 @@
 const bcrypt = require('bcryptjs');
-const pool = require('../config/db');
+const User = require('../models/User'); // Import the Mongoose model
 const generateToken = require('../utils/generateToken');
 
 // POST /api/auth/register
-// Admins register mentors/interns; first admin can be seeded directly in DB.
 async function register(req, res, next) {
   try {
     const { name, email, password, role, department, mentorId } = req.body;
@@ -15,24 +14,34 @@ async function register(req, res, next) {
     const allowedRoles = ['admin', 'mentor', 'intern'];
     const finalRole = allowedRoles.includes(role) ? role : 'intern';
 
-    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-    if (existing.rows.length > 0) {
+    // Check if user exists
+    const existing = await User.findOne({ email });
+    if (existing) {
       return res.status(409).json({ message: 'An account with this email already exists.' });
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    // Create user (Note: password hashing is handled by the pre-save hook in User model)
+    const user = await User.create({
+      name,
+      email,
+      password, // Mongoose model will hash this
+      role: finalRole,
+      department,
+      mentorId
+    });
 
-    const result = await pool.query(
-      `INSERT INTO users (name, email, password_hash, role, department, mentor_id)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, name, email, role, department, created_at`,
-      [name, email, passwordHash, finalRole, department || null, mentorId || null]
-    );
-
-    const user = result.rows[0];
     const token = generateToken(user);
 
-    res.status(201).json({ user, token });
+    // Return user without password
+    const userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      department: user.department
+    };
+
+    res.status(201).json({ user: userResponse, token });
   } catch (err) {
     next(err);
   }
@@ -47,22 +56,24 @@ async function login(req, res, next) {
       return res.status(400).json({ message: 'email and password are required.' });
     }
 
-    const result = await pool.query('SELECT * FROM users WHERE email = $1 AND is_active = TRUE', [email]);
-    const user = result.rows[0];
+    // Find user and include password field explicitly since we hide it by default
+    const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
-    const match = await bcrypt.compare(password, user.password_hash);
+    const match = await bcrypt.compare(password, user.password);
     if (!match) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
     const token = generateToken(user);
-    const { password_hash, ...safeUser } = user;
-
-    res.json({ user: safeUser, token });
+    
+    res.json({ 
+      user: { id: user._id, name: user.name, email: user.email, role: user.role }, 
+      token 
+    });
   } catch (err) {
     next(err);
   }
@@ -71,14 +82,11 @@ async function login(req, res, next) {
 // GET /api/auth/me
 async function getMe(req, res, next) {
   try {
-    const result = await pool.query(
-      'SELECT id, name, email, role, department, mentor_id, created_at FROM users WHERE id = $1',
-      [req.user.id]
-    );
-    if (result.rows.length === 0) {
+    const user = await User.findById(req.user.id);
+    if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
-    res.json({ user: result.rows[0] });
+    res.json({ user });
   } catch (err) {
     next(err);
   }
