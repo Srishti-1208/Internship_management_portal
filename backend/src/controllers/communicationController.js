@@ -20,8 +20,8 @@ async function listAnnouncements(req, res, next) {
   try {
     let filter = {};
     if (req.user.role === 'intern') {
-      // Find programs this intern is enrolled in (Program.interns is an embedded array of user IDs)
-      const enrolledPrograms = await Program.find({ interns: req.user.id }).select('_id');
+      // Find programs this intern is enrolled in (Program.interns is now [{ user, joinedAt }])
+      const enrolledPrograms = await Program.find({ 'interns.user': req.user.id }).select('_id');
       const pIds = enrolledPrograms.map(p => p._id);
       filter.$or = [{ programId: null }, { programId: { $in: pIds } }];
     } else if (req.query.programId) {

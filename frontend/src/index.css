@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  background-color: #12181B;
+  background-color: #FBF7EE;
   font-family: 'Inter', sans-serif;
 }
 
@@ -13,7 +13,7 @@ body {
     to bottom,
     transparent,
     transparent 27px,
-    rgba(237, 230, 214, 0.08) 28px
+    rgba(33, 30, 25, 0.06) 28px
   );
 }
 
@@ -40,19 +40,24 @@ body {
   opacity: 0.55;
 }
 
-/* Subtle grain overlay for the parchment surfaces */
+/* Subtle grain overlay — neutral-gray dots blended so they read on both
+   light (ivory/white) and dark (charcoal) surfaces without a light/dark variant */
 .paper-texture {
-  background-image: radial-gradient(rgba(36, 31, 23, 0.035) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(128, 128, 128, 0.22) 1px, transparent 1px);
   background-size: 3px 3px;
+  mix-blend-mode: overlay;
 }
 
 ::-webkit-scrollbar {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #12181B;
+  background: #FBF7EE;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2A353B;
+  background: #DDD1B2;
   border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #CBBD97;
 }

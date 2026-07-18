@@ -17,6 +17,7 @@ export default function ApplicationsPage() {
   const [showForm, setShowForm] = useState(false);
   const [onboardResult, setOnboardResult] = useState(null);
   const [mentors, setMentors] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     api.get('/programs').then((res) => {
@@ -37,14 +38,24 @@ export default function ApplicationsPage() {
   }, [loadApplications]);
 
   async function moveStage(app, status) {
-    await api.put(`/applications/${app.id}`, { status });
-    loadApplications();
+    setError('');
+    try {
+      await api.put(`/applications/${app.id}`, { status });
+      loadApplications();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not update this application.');
+    }
   }
 
   async function handleOnboard(app, mentorId) {
-    const res = await api.post(`/applications/${app.id}/onboard`, { mentorId: mentorId || undefined });
-    setOnboardResult({ name: app.name, email: app.email, ...res.data });
-    loadApplications();
+    setError('');
+    try {
+      const res = await api.post(`/applications/${app.id}/onboard`, { mentorId: mentorId || undefined });
+      setOnboardResult({ name: app.name, email: app.email, ...res.data });
+      loadApplications();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not onboard this applicant.');
+    }
   }
 
   return (
@@ -75,6 +86,12 @@ export default function ApplicationsPage() {
           </button>
         </div>
       </div>
+
+      {error && (
+        <p className="text-sm text-stamp-red bg-stamp-red/10 border border-stamp-red/30 rounded-md px-3 py-2 mb-6">
+          {error}
+        </p>
+      )}
 
       {onboardResult && (
         <div className="bg-stamp-green/10 border border-stamp-green/30 rounded-lg p-4 mb-6 flex items-start justify-between gap-4">

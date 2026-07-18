@@ -14,7 +14,7 @@ import TaskDetailPage from './pages/TaskDetailPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import CertificatesPage from './pages/CertificatesPage';
 import Unauthorized from './pages/Unauthorized';
-
+import ChatBot from './components/ChatBot';
 export default function App() {
   return (
     <BrowserRouter>
@@ -108,6 +108,7 @@ export default function App() {
 
           <Route path="*" element={<Navigate to="/attendance" replace />} />
         </Routes>
+        <ChatBot />
       </AuthProvider>
     </BrowserRouter>
   );

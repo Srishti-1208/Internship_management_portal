@@ -1,8 +1,8 @@
 const STATUS_STYLES = {
-  present: { color: '#4C7A63', label: 'Present' },
-  absent: { color: '#B14B3D', label: 'Absent' },
-  half_day: { color: '#C98A3E', label: 'Half Day' },
-  leave: { color: '#5B6B70', label: 'On Leave' },
+  present: { color: '#3D6952', label: 'Present' },
+  absent: { color: '#A03F2E', label: 'Absent' },
+  half_day: { color: '#B87A2E', label: 'Half Day' },
+  leave: { color: '#4C5A60', label: 'On Leave' },
 };
 
 export default function StampBadge({ status, size = 'md' }) {
