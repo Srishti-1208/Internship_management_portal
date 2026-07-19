@@ -20,7 +20,6 @@ async function listAnnouncements(req, res, next) {
   try {
     let filter = {};
     if (req.user.role === 'intern') {
-      // Find programs this intern is enrolled in (Program.interns is now [{ user, joinedAt }])
       const enrolledPrograms = await Program.find({ 'interns.user': req.user.id }).select('_id');
       const pIds = enrolledPrograms.map(p => p._id);
       filter.$or = [{ programId: null }, { programId: { $in: pIds } }];
@@ -61,6 +60,18 @@ async function deleteAnnouncement(req, res, next) {
   } catch (err) { next(err); }
 }
 
+function serializeComment(c) {
+  return {
+    id: c._id,
+    task_id: c.taskId,
+    body: c.body,
+    author_id: c.authorId?._id ?? c.authorId,
+    author_name: c.authorId?.name ?? null,
+    author_role: c.authorId?.role ?? null,
+    created_at: c.createdAt,
+  };
+}
+
 async function listComments(req, res, next) {
   try {
     if (!(await userCanAccessTask(req.user, req.params.taskId)))
@@ -69,7 +80,7 @@ async function listComments(req, res, next) {
     const comments = await TaskComment.find({ taskId: req.params.taskId })
       .populate('authorId', 'name role')
       .sort('createdAt');
-    res.json({ comments });
+    res.json({ comments: comments.map(serializeComment) });
   } catch (err) { next(err); }
 }
 
@@ -88,12 +99,13 @@ async function addComment(req, res, next) {
     if (!(await userCanAccessTask(req.user, req.params.taskId)))
       return res.status(403).json({ message: 'Access denied.' });
 
-    const comment = await TaskComment.create({
+    let comment = await TaskComment.create({
       taskId: req.params.taskId,
       authorId: req.user.id,
       body: req.body.body
     });
-    res.status(201).json({ comment });
+    comment = await comment.populate('authorId', 'name role');
+    res.status(201).json({ comment: serializeComment(comment) });
   } catch (err) { next(err); }
 }
 

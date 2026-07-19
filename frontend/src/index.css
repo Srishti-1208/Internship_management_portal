@@ -43,9 +43,18 @@ body {
 /* Subtle grain overlay — neutral-gray dots blended so they read on both
    light (ivory/white) and dark (charcoal) surfaces without a light/dark variant */
 .paper-texture {
+  position: relative;
+  isolation: isolate;
+}
+.paper-texture::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background-image: radial-gradient(rgba(128, 128, 128, 0.22) 1px, transparent 1px);
   background-size: 3px 3px;
   mix-blend-mode: overlay;
+  pointer-events: none;
 }
 
 ::-webkit-scrollbar {

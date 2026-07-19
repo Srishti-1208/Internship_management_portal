@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['admin', 'mentor', 'intern'], default: 'intern' },
   department: { type: String, default: null },
   mentorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  resetPasswordToken: { type: String, select: false, default: null },
+  resetPasswordExpires: { type: Date, select: false, default: null },
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {
