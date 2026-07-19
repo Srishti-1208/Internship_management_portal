@@ -1,3 +1,23 @@
+# Internship Management Portal
+
+A full-stack web app for managing internship programs — applications, tasks, attendance, certificates, announcements, analytics, and an in-app AI assistant. Built as a **React + Vite** frontend and a **Node.js + Express + MongoDB** backend.
+
+## Tech Stack
+
+**Frontend**
+- React 18 + Vite
+- React Router DOM
+- Tailwind CSS
+- Axios (API client)
+- Recharts (analytics dashboard)
+
+**Backend**
+- Node.js + Express
+- MongoDB + Mongoose
+- JWT authentication (`jsonwebtoken`, `bcryptjs`)
+- Google Generative AI (Gemini) — powers the chat assistant
+- Helmet, CORS, Morgan (security & logging)
+
 ## Features
 
 - **Auth** — register/login, JWT-protected routes, password reset flow
