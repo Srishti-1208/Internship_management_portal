@@ -18,6 +18,8 @@ async function listPrograms(req, res, next) {
     if (req.user.role === 'mentor') {
       const myInterns = await User.find({ mentorId: req.user.id }).select('_id');
       match = { 'interns.user': { $in: myInterns.map(i => i._id) } };
+    } else if (req.user.role === 'intern') {
+      match = { 'interns.user': req.user._id };
     }
     const programs = await Program.aggregate([
       { $match: match },
@@ -48,7 +50,7 @@ async function getProgram(req, res, next) {
     });
     if (!program) return res.status(404).json({ message: 'Program not found.' });
 
-    const interns = program.interns
+    let interns = program.interns
       .filter((entry) => entry.user) // guard against a dangling ref if a user was deleted
       .map((entry) => ({
         id: entry.user._id,
@@ -57,6 +59,14 @@ async function getProgram(req, res, next) {
         mentor_name: entry.user.mentorId?.name ?? null,
         joined_at: entry.joinedAt,
       }));
+
+    if (req.user.role === 'intern') {
+      // Interns only get to see their own enrollment record, not the full roster.
+      interns = interns.filter((i) => String(i.id) === String(req.user._id));
+      if (interns.length === 0) {
+        return res.status(403).json({ message: 'You are not enrolled in this program.' });
+      }
+    }
 
     res.json({
       program: {
@@ -92,14 +102,20 @@ async function deleteProgram(req, res, next) {
 async function addInternToProgram(req, res, next) {
   try {
     const { userId, mentorId } = req.body;
-    if (mentorId) await User.findByIdAndUpdate(userId, { mentorId });
-    const result = await Program.updateOne(
-      { _id: req.params.id, 'interns.user': { $ne: userId } },
-      { $push: { interns: { user: userId, joinedAt: new Date() } } }
-    );
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ message: 'Program not found.' });
+    const program = await Program.findById(req.params.id);
+    if (!program) return res.status(404).json({ message: 'Program not found.' });
+
+    const alreadyEnrolled = program.interns.some((entry) => String(entry.user) === String(userId));
+    if (!alreadyEnrolled) {
+      program.interns.push({ user: userId, joinedAt: new Date() });
+      await program.save();
     }
+
+    // Allow assigning/changing the mentor even for an intern already enrolled in the program.
+    if (mentorId) {
+      await User.findByIdAndUpdate(userId, { mentorId });
+    }
+
     res.status(201).json({ assigned: true });
   } catch (err) { next(err); }
 }

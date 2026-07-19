@@ -16,10 +16,10 @@ const router = express.Router();
 
 router.use(protect);
 
-router.get('/', authorize('admin', 'mentor'), listPrograms);
+router.get('/', authorize('admin', 'mentor', 'intern'), listPrograms);
 router.get('/unassigned-interns', authorize('admin'), getUnassignedInterns);
 router.get('/mentors/list', authorize('admin'), listMentors);
-router.get('/:id', authorize('admin', 'mentor'), getProgram);
+router.get('/:id', authorize('admin', 'mentor', 'intern'), getProgram);
 
 router.post('/', authorize('admin'), createProgram);
 router.put('/:id', authorize('admin'), updateProgram);

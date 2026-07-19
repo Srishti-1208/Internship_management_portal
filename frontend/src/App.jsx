@@ -46,7 +46,7 @@ export default function App() {
           <Route
             path="/programs"
             element={
-              <ProtectedRoute roles={['admin', 'mentor']}>
+              <ProtectedRoute roles={['admin', 'mentor', 'intern']}>
                 <ProgramsPage />
               </ProtectedRoute>
             }
@@ -55,7 +55,7 @@ export default function App() {
           <Route
             path="/programs/:id"
             element={
-              <ProtectedRoute roles={['admin', 'mentor']}>
+              <ProtectedRoute roles={['admin', 'mentor', 'intern']}>
                 <ProgramDetailPage />
               </ProtectedRoute>
             }

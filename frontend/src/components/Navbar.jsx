@@ -17,7 +17,7 @@
       { to: '/attendance', label: 'Attendance' },
       { to: '/tasks', label: 'Tasks' },
       ...(user.role !== 'intern' ? [{ to: '/analytics', label: 'Analytics' }] : []),
-      ...(user.role !== 'intern' ? [{ to: '/programs', label: 'Programs' }] : []),
+      { to: '/programs', label: user.role === 'intern' ? 'My Program' : 'Programs' },
       ...(user.role === 'admin' ? [{ to: '/applications', label: 'Applications' }] : []),
       { to: '/announcements', label: 'Announcements' },
       { to: '/certificates', label: 'Certificates' },

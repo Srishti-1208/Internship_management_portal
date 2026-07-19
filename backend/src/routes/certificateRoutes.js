@@ -3,6 +3,7 @@ const {
   checkEligibility,
   issueCertificate,
   listMyCertificates,
+  listAllCertificates,
   verifyCertificate,
 } = require('../controllers/certificateController');
 const { protect, authorize } = require('../middleware/auth');
@@ -14,8 +15,14 @@ router.get('/verify/:code', verifyCertificate);
 
 router.use(protect);
 
-router.get('/eligibility', authorize('admin', 'mentor'), checkEligibility);
-router.post('/', authorize('admin'), issueCertificate);
+// Only mentors issue certificates, and only for their own interns.
+router.get('/eligibility', authorize('mentor'), checkEligibility);
+router.post('/', authorize('mentor'), issueCertificate);
+
+// Interns view their own certificates.
 router.get('/mine', authorize('intern'), listMyCertificates);
+
+// Admin no longer issues certificates, but keeps read-only oversight.
+router.get('/all', authorize('admin'), listAllCertificates);
 
 module.exports = router;
